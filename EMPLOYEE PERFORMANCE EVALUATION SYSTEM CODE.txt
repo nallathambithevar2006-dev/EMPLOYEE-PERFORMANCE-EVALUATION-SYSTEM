@@ -1,0 +1,85 @@
+CREATE DATABASE EmployeeEvaluation;
+USE EmployeeEvaluation;
+
+CREATE TABLE Department (
+ Department_ID INT PRIMARY KEY,
+ Department_Name VARCHAR(50) NOT NULL
+);
+CREATE TABLE Employee (
+ Employee_ID INT PRIMARY KEY,
+ Employee_Name VARCHAR(50) NOT NULL,
+ Department_ID INT,
+ Designation VARCHAR(50),
+ Date_Of_Joining DATE,
+ FOREIGN KEY (Department_ID) REFERENCES Department(Department_ID)
+);
+CREATE TABLE Evaluator (
+ Evaluator_ID INT PRIMARY KEY,
+ Evaluator_Name VARCHAR(50) NOT NULL,
+ Role VARCHAR(50)
+);
+CREATE TABLE Evaluation (
+ Evaluation_ID INT PRIMARY KEY,
+ Employee_ID INT,
+ Evaluator_ID INT,
+ Performance_Score INT CHECK (Performance_Score BETWEEN 0 AND 100),
+ Remarks VARCHAR(100),
+ Evaluation_Date DATE,
+ FOREIGN KEY (Employee_ID) REFERENCES Employee(Employee_ID),
+ FOREIGN KEY (Evaluator_ID) REFERENCES Evaluator(Evaluator_ID)
+);
+
+
+INSERT INTO Department VALUES
+(1, 'HR'),
+(2, 'IT'),
+(3, 'Finance'),
+(4, 'Marketing'),
+(5, 'Operations');
+
+INSERT INTO Employee VALUES
+(101, 'Rahul Sharma', 1, 'Manager', '2021-06-10'),
+(102, 'Anita Verma', 2, 'Developer', '2022-03-15'),
+(103, 'Karan Mehta', 3, 'Accountant', '2020-11-20'),
+(104, 'Pooja Singh', 4, 'Marketing Executive', '2023-01-05'),
+(105, 'Neha Patel', 5, 'Operations Officer', '2019-08-18');
+
+
+INSERT INTO Evaluator VALUES
+(201, 'Amit Singh', 'HR Manager'),
+(202, 'Ravi Kumar', 'Senior Manager'),
+(203, 'Sunita Rao', 'Department Head'),
+(204, 'Manoj Gupta', 'Team Lead'),
+(205, 'Priya Nair', 'HR Executive');
+
+INSERT INTO Evaluation VALUES
+(301, 101, 201, 85, 'Very Good', '2024-01-10'),
+(302, 102, 202, 90, 'Excellent', '2024-01-12'),
+(303, 103, 203, 78, 'Good', '2024-01-15'),
+(304, 104, 204, 88, 'Very Good', '2024-01-18'),
+(305, 105, 205, 92, 'Outstanding', '2024-01-20');
+
+SELECT Employee_Name, Performance_Score
+FROM Employee
+JOIN Evaluation ON Employee.Employee_ID = Evaluation.Employee_ID;
+
+SELECT Department_ID, COUNT(Employee_ID) AS Total_Employees
+FROM Employee
+GROUP BY Department_ID;
+SELECT Department_ID, COUNT(Employee_ID) AS Total_Employees
+FROM Employee
+GROUP BY Department_ID
+HAVING COUNT(Employee_ID) > 1;
+
+SELECT Employee_Name
+FROM Employee
+WHERE Employee_ID IN (
+ SELECT Employee_ID
+ FROM Evaluation
+ WHERE Performance_Score > 80
+);
+
+CREATE VIEW Performance_View AS
+SELECT Employee_Name, Performance_Score
+FROM Employee
+JOIN Evaluation ON Employee.Employee_ID = Evaluation.Employee_ID;
